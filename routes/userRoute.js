@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const {authMiddleware} = require("../common/middleware/authMiddleware");
-const { getUsers, createUser } = require("../controllers/userController");
+const {roleMiddleware} = require("../common/middleware/roleMiddleware");
+const { getUsers, createUser, getUser } = require("../controllers/userController");
 
-exports.userRouter = Router().get("/users", authMiddleware, getUsers).post("/users", createUser);
+exports.userRouter = Router().all("/users",authMiddleware).get("/users", roleMiddleware(401) , getUsers).get("/user/:id", getUser).post("/users", createUser);
 

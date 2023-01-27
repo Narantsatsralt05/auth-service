@@ -8,17 +8,23 @@ exports.signup = async (req, res) => {
   if (!username || !password || !email)
     return res.send("username, password and email is required");
 
-  const encryptedPassword = await bcrypt.hash(password, 10);
   try {
-    const userDocument = new User({
-      username,
-      password: encryptedPassword,
-      email,
-    });
-    const user = await userDocument.save();
-    res.send(user);
+    const encryptedPassword = await bcrypt.hash(password, 10);
+
+    try {
+      const userDocument = new User({
+        username,
+        password: encryptedPassword,
+        email,
+      });
+      await userDocument.save();
+      res.status(201).json({ 'success': `New user ${username} created!` });
+
+    } catch (error) {
+      res.send({ error });
+    }
   } catch (error) {
-    res.send(error);
+    res.send({ error });
   }
 };
 
@@ -29,9 +35,11 @@ exports.login = async (req, res) => {
     return res.send("username, password and email is required");
 
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({username});
+    
+    const roles = Object.values(user.roles);
 
-    const token = generateToken({ username, password });
+    const token = generateToken({ username, password, roles });
 
     const isEqual = await bcrypt.compare(password, user.password);
     if (isEqual) return res.send(token);

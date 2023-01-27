@@ -5,6 +5,7 @@ const userSchema = new Schema({
   password: String,
   email: String,
   createdAt: { default: Date.now(), type: Date },
+  roles: { type: Object, default: {"User": 200} },
 });
 
 const User = model("User", userSchema);
